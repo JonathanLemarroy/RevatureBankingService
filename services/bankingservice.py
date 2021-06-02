@@ -7,6 +7,7 @@ from daos.bankaccountdao import BankAccountDAO
 from entities.accountholder import AccountHolder
 from entities.bankaccount import BankAccount
 from util.nosuchelementerror import NoSuchElementError
+from util.dataerror import DataError
 from util.postgresdb import PostgresDB
 
 
@@ -65,7 +66,12 @@ class BankingServiceInterface(ABC):
 class BankingService(BankingServiceInterface):
 
     def __init__(self):
-        self.__pg = PostgresDB("revaturedb.cw0dgbcoagdz.us-east-2.rds.amazonaws.com", "revature", "revature")
+        data = None
+        with open('dbcredentials.json') as f:
+            data = json.load(f)
+        if data is None:
+            raise DataError("Data base credentials couldn't be parsed")
+        self.__pg = PostgresDB(data["host"], data["username"], data["password"])
         self.user_dao = AccountHolderDAO(self.__pg, "account_holders", "accounts")
         self.account_dao = BankAccountDAO(self.__pg, "accounts")
 

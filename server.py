@@ -9,7 +9,7 @@ from services.bankingservice import BankingService
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
-logging.basicConfig(filename="records.log", level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(message)s')
+#logging.basicConfig(filename="records.log", level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(message)s')
 
 banking_service = BankingService()
 
@@ -38,7 +38,11 @@ def get_all_clients():
 
 @app.route('/clients/<client_id>', methods=['GET'])
 def get_client(client_id: str):
-    return banking_service.get_client(int(client_id))
+    try:
+        return banking_service.get_client(int(client_id))
+    except Exception as e:
+        print(str(e))
+        return "Error parsing body of request", 400
 
 
 @app.route('/clients/<client_id>', methods=['PUT'])
@@ -55,12 +59,17 @@ def update_client(client_id: str):
         return banking_service.update_client(int(client_id), f_name, l_name)
     except Exception as e:
         print(str(e))
-        return "Error parsing body of request", 400
+        return "Error parsing request", 400
 
 
 @app.route('/clients/<client_id>', methods=['DELETE'])
 def delete_client(client_id: str):
-    return banking_service.remove_client(int(client_id))
+    try:
+        return banking_service.remove_client(int(client_id))
+    except Exception as e:
+        print(str(e))
+        return "Error parsing request", 400
+
 
 
 @app.route('/clients/<client_id>/accounts', methods=['POST'])
@@ -76,7 +85,7 @@ def create_account(client_id: str):
         return banking_service.create_account(int(client_id), account_type)
     except Exception as e:
         print(str(e))
-        return "Error parsing body of request", 400
+        return "Error parsing request", 400
 
 
 @app.route('/clients/<client_id>/accounts', methods=['GET'])
@@ -92,13 +101,16 @@ def get_accounts(client_id: str):
         return banking_service.get_accounts(int(client_id), min_bal, max_bal)
     except Exception as e:
         print(str(e))
-        return "Error parsing body of request", 400
+        return "Error parsing request", 400
 
 
 @app.route('/clients/<client_id>/accounts/<account_id>', methods=['GET'])
 def get_account(client_id: str, account_id: str):
-    return banking_service.get_account(int(client_id), int(account_id))
-
+    try:
+        return banking_service.get_account(int(client_id), int(account_id))
+    except Exception as e:
+        print(str(e))
+        return "Error parsing request", 400
 
 @app.route('/clients/<client_id>/accounts/<account_id>', methods=['PUT'])
 def update_account(client_id: str, account_id: str):
@@ -114,12 +126,16 @@ def update_account(client_id: str, account_id: str):
         return banking_service.update_account(int(client_id), int(account_id), account_type, balance)
     except Exception as e:
         print(str(e))
-        return "Error parsing body of request", 400
+        return "Error parsing request", 400
 
 
 @app.route('/clients/<client_id>/accounts/<account_id>', methods=['DELETE'])
 def delete_account(client_id: str, account_id: str):
-    return banking_service.remove_account(int(client_id), int(account_id))
+    try:
+        return banking_service.remove_account(int(client_id), int(account_id))
+    except Exception as e:
+        print(str(e))
+        return "Error parsing request", 400
 
 
 @app.route('/clients/<client_id>/accounts/<account_id>', methods=['PATCH'])
@@ -135,7 +151,7 @@ def update_balance(client_id: str, account_id: str):
         return banking_service.update_balance(int(client_id), int(account_id), total)
     except Exception as e:
         print(str(e))
-        return "Error parsing body of request", 400
+        return "Error parsing request", 400
 
 
 @app.route('/clients/<client_id>/accounts/<account_from_id>/transfer/<account_to_id>', methods=['PATCH'])
@@ -149,7 +165,7 @@ def transfer_balance(client_id: str, account_from_id: str, account_to_id: str):
         return banking_service.transfer_funds(int(client_id), int(account_from_id), int(account_to_id), funds)
     except Exception as e:
         print(str(e))
-        return "Error parsing body of request", 400
+        return "Error parsing request", 400
 
 
 if __name__ == "__main__":

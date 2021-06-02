@@ -42,6 +42,7 @@ class AccountHolderDAO(AccountHolderDAOInterface):
               f"user_id int primary key generated always as identity );"
         self.__database.execute(sql)
         self.__database.commit()
+        self.__account_dao = BankAccountDAO(self.__database, self.__table_name_s)
 
     def create_record(self, user: AccountHolder) -> AccountHolder:
         sql = f"INSERT INTO {self.__table_name} (first_name, last_name) values (%s, %s) returning user_id;"
@@ -64,9 +65,8 @@ class AccountHolderDAO(AccountHolderDAOInterface):
 
     def delete_record(self, client_id: int) -> None:
         client = self.load_object(client_id)
-        account_access = BankAccountDAO(self.__database, self.__table_name_s)
         for account in client.get_accounts():
-            account_access.delete_record(account)
+            self.__account_dao.delete_record(account)
         sql = f"DELETE FROM {self.__table_name} WHERE user_id = %s returning user_id;"
         results = self.__database.execute(sql, [client_id])
         if len(results) == 0:
@@ -81,8 +81,7 @@ class AccountHolderDAO(AccountHolderDAOInterface):
         if len(results) == 0:
             raise NoSuchElementError(f"No clients found for query on client id {client_id}")
         result = results[0]
-        accounts_access = BankAccountDAO(self.__database, self.__table_name_s)
-        accounts = accounts_access.load_objects(result[2])
+        accounts = self.__account_dao.load_objects(result[2])
         return AccountHolder(result[0], result[1], result[2], [account.get_account_id()
                                                                for account in accounts.values()
                                                                if account.get_owner_id() == result[2]])
