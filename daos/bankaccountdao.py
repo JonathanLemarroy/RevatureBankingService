@@ -37,6 +37,14 @@ class BankAccountDAO(BankAccountDAOInterface):
     def __init__(self, database: PostgresDB, table_name: str):
         self.__database: PostgresDB = database
         self.__table_name = table_name
+        sql = f"create table if not exists accounts ( " \
+              f"owner_id int, " \
+              f"account_type varchar(20), " \
+              f"balance float, " \
+              f"account_id int primary key generated always as identity, " \
+              f"foreign key (owner_id) references account_holders (user_id) );"
+        self.__database.execute(sql)
+        self.__database.commit()
 
     def create_record(self, account: BankAccount) -> BankAccount:
         sql = f"INSERT INTO {self.__table_name} " \

@@ -36,6 +36,12 @@ class AccountHolderDAO(AccountHolderDAOInterface):
         self.__database: PostgresDB = database
         self.__table_name = table_name_p
         self.__table_name_s = table_name_s
+        sql = f"CREATE TABLE IF NOT EXISTS {self.__table_name} ( " \
+              f"first_name varchar(50), " \
+              f"last_name varchar(50), " \
+              f"user_id int primary key generated always as identity );"
+        self.__database.execute(sql)
+        self.__database.commit()
 
     def create_record(self, user: AccountHolder) -> AccountHolder:
         sql = f"INSERT INTO {self.__table_name} (first_name, last_name) values (%s, %s) returning user_id;"
